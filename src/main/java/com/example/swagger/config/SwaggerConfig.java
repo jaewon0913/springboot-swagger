@@ -75,7 +75,7 @@ public class SwaggerConfig {
         List<ResponseMessage> responseMessages = new ArrayList<>();
         responseMessages.add(new ResponseMessageBuilder()
                 .code(200)
-                .message("OK ~~")
+                .message("OK!!!!! ~~")
                 .build());
         responseMessages.add(new ResponseMessageBuilder()
                 .code(404)

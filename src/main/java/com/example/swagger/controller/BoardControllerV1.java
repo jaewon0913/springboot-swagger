@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.swagger.model.Board;
@@ -24,8 +25,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Example;
+import io.swagger.annotations.ExampleProperty;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @Api(value = "BoardController V1")
@@ -59,9 +66,9 @@ public class BoardControllerV1 {
 	
 	@ApiOperation(value = "Board 추가", notes="새로운 Board를 추가")
 	@ApiImplicitParams(
-			@ApiImplicitParam(name= "board", value="Board의 model 형태에 해당하는 JSON 문자열")
-	)
-	@PostMapping(value ="/board", produces= {"application/json;charset=utf-8"})
+			@ApiImplicitParam(name= "board", value="Board의 model 형태에 해당하는 JSON 문자열(boardNo는 지우고 작성)", paramType = "body", dataType = "Board")
+			)
+	@PostMapping(value ="/board")
 	public ResponseEntity<Board> insertBoard(@RequestBody String board) {
 		ObjectMapper mapper = new ObjectMapper();
 		
@@ -81,35 +88,29 @@ public class BoardControllerV1 {
 	
 	@ApiOperation(value = "Board 수정", notes="boardNo에 해당하는 Board 데이터를 수정")
 	@ApiImplicitParams(
-			@ApiImplicitParam(name= "board", value="Board의 model 형태에 해당하는 JSON 문자열")
-	)
+			@ApiImplicitParam(name= "board", value="Board의 model 형태에 해당하는 JSON 문자열", paramType = "body", dataType = "Board")
+			)
 	@PutMapping(value ="/board")
-	public ResponseEntity<Board> updateBoard(@RequestBody String board) {
-		ObjectMapper mapper = new ObjectMapper();
+	public ResponseEntity<Board> updateBoard(@RequestBody Board board) {
 		
-		try {
-			Board o = mapper.readValue(board, Board.class);
-			boardService.updateBoard(o);
-			
-			return new ResponseEntity<Board>(o, HttpStatus.OK);
-		} catch(JsonParseException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		} catch(JsonMappingException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		} catch (IOException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		if(boardService.updateBoard(board)) {
+		
+			return new ResponseEntity<Board>(board, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST); 
 		}
 	}
 	
 	@ApiOperation(value = "Board 삭제", notes="boardNo에 해당하는 Board 데이터를 삭제")
-	@ApiImplicitParams(
-			@ApiImplicitParam(name= "board", value="Board의 model 형태에 해당하는 JSON 문자열")
-	)
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "성공~~!" ),
+			@ApiResponse(code = 404, message = "없는 페이지" )
+	})
 	@DeleteMapping(value ="/board/{boardNo}")
-	public ResponseEntity<Board> deleteBoardByBoardNo(@PathVariable("boardNo") String boardNo){
+	public ResponseEntity<Board> deleteBoardByBoardNo(@ApiParam(value="글 번호", required=true) @PathVariable("boardNo") String boardNo){
 		
 		int intBoardNo = Integer.parseInt(boardNo);
-		
+				
 		try {
 			if(boardService.deleteBoardByBoardNo(intBoardNo)) {
 				return new ResponseEntity<>(HttpStatus.OK);

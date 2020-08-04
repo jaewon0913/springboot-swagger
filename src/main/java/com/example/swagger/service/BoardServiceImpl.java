@@ -2,6 +2,7 @@ package com.example.swagger.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.springframework.stereotype.Service;
 
@@ -51,16 +52,19 @@ public class BoardServiceImpl implements BoardService{
 	
 	@Override
 	public boolean updateBoard(Board board) {
-		Board obj = boards.stream()
-				.filter(m -> m.getBoardNo() == board.getBoardNo())
-				.findFirst().get();
+		Predicate<Board> boardPredicate = a-> a.getBoardNo() == board.getBoardNo();
 		
-		if(board != null) {
+		Board obj = boards.stream()
+				.filter(boardPredicate).findFirst().get();
+		
+		if( obj != null) {
 			obj.setTitle(board.getTitle());
 			obj.setContent(board.getContent());
+			
+			return true;
+		} else {
+			return false;
 		}
-		
-		return true;
 	}
 
 	@Override
