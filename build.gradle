@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	
 	//springfox-swagger dependencies
 	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
